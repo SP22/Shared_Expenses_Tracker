@@ -6,10 +6,10 @@ public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         CommandProcessor processor = new CommandProcessor();
-        String input;
-        do {
+        String input = "";
+        while (!"exit".equals(input)) {
             input = scanner.nextLine();
-            processor.parseInput(input);
-        } while (!"exit".equals(input));
+            processor.execute(input);
+        }
     }
 }
