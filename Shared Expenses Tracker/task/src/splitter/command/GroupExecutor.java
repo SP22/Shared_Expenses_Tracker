@@ -3,29 +3,49 @@ package splitter.command;
 import splitter.GroupHolder;
 import splitter.UserHolder;
 import splitter.model.User;
+import splitter.util.GroupMemberFilter;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class GroupExecutor implements CommandExecutor {
+    private final GroupHolder groups = GroupHolder.getInstance();
+    private final UserHolder users = UserHolder.getInstance();
+
     @Override
     public void execute(List<String> params) {
-        switch (params.get(1)) {
+        String command = params.get(1);
+        String groupName = params.get(2);
+        String members = params.get(3);
+        switch (command) {
             case "show":
-                show(params.get(2));
+                show(groupName);
                 break;
             case "create":
-                create(params.get(2), params.get(3));
+                create(groupName, members);
+                break;
+            case "add":
+                add(groupName, members);
+                break;
+            case "remove":
+                remove(groupName, members);
                 break;
         }
     }
 
+    private void add(String groupName, String members) {
+        for (String userName : GroupMemberFilter.filter(members)) {
+            User user = users.addUser(userName);
+            groups.addUserToGroup(groupName, user);
+        }
+    }
+
     private void show(String name) {
-        GroupHolder groups = GroupHolder.getInstance();
         Set<User> group = groups.getGroup(name);
         if (group == null) {
             System.out.println("Unknown group");
+        } else if (group.isEmpty()) {
+            System.out.println("Group is empty");
         } else {
             group.forEach(System.out::println);
         }
@@ -33,10 +53,17 @@ public class GroupExecutor implements CommandExecutor {
     }
 
     private void create(String name, String members) {
-        String[] memberList = members.trim().replaceAll("[(),]", "").split(" ");
-        for (String userName : memberList) {
-            User user = UserHolder.getInstance().addUser(userName);
-            GroupHolder.getInstance().addUserToGroup(name, user);
+        groups.create(name);
+        for (String userName : GroupMemberFilter.filter(members)) {
+            User user = users.addUser(userName);
+            groups.addUserToGroup(name, user);
+        }
+    }
+
+    private void remove(String name, String members) {
+        for (String userName : GroupMemberFilter.filter(members)) {
+            User user = users.addUser(userName);
+            groups.removeUserFromGroup(name, user);
         }
     }
 }

@@ -1,27 +1,25 @@
 package splitter.command;
 
-import splitter.GroupHolder;
 import splitter.TransactionHistory;
 import splitter.UserHolder;
 import splitter.model.Transaction;
 import splitter.model.User;
 import splitter.util.DateUtil;
+import splitter.util.GroupMemberFilter;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class PurchaseExecutor implements CommandExecutor {
 
     private final TransactionHistory history = TransactionHistory.getInstance();
-    private final GroupHolder groups = GroupHolder.getInstance();
     private final UserHolder users = UserHolder.getInstance();
-    private final Set<String> temporary = new TreeSet<>();
 
     BigDecimal minimumAmount = new BigDecimal("0.01");
-    boolean haveRemainder = false;
 
     @Override
     public void execute(List<String> params) {
@@ -30,10 +28,19 @@ public class PurchaseExecutor implements CommandExecutor {
 
             User payer = users.addUser(params.get(2));
             BigDecimal totalPrice = new BigDecimal(params.get(4));
+            Set<User> borrowers = new TreeSet<>();
+            UserHolder userHolder = UserHolder.getInstance();
+            for (String s : GroupMemberFilter
+                    .filter(params.get(5))) {
+                User user = userHolder.addUser(s);
+                borrowers.add(user);
+            }
 
-            Set<User> borrowers = groups.getGroup(params.get(5));
+            if (borrowers.isEmpty()) {
+                System.out.println("Group is empty");
+                return;
+            }
 
-            haveRemainder = false;
             processPurchase(date, payer, borrowers, totalPrice);
 
         } catch (Exception e) {
@@ -42,6 +49,7 @@ public class PurchaseExecutor implements CommandExecutor {
     }
 
     private void processPurchase(LocalDate date, User payer, Set<User> borrowers, BigDecimal totalPrice) {
+        boolean haveRemainder;
         BigDecimal quantity = new BigDecimal(borrowers.size());
         BigDecimal sharedAmount = totalPrice.divide(quantity, RoundingMode.FLOOR);
         haveRemainder = (0 != totalPrice.compareTo(sharedAmount.multiply(quantity)));
