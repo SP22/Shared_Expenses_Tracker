@@ -6,3 +6,14 @@
 /.idea/
 /.idea/.gitignore
 /Topics/
+**/task-remote-info.yaml
+**/task-info.yaml
+/gradle/
+/gradlew
+/gradlew.bat
+/util/
+/settings.gradle
+**/task.html
+/course-info.yaml
+/course-remote-info.yaml
+/Shared Expenses Tracker/lesson-info.yaml
