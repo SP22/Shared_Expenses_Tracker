@@ -14,7 +14,7 @@ public enum Command {
     BALANCE("balance", "([0-9]{4}\\.[0-9]{2}\\.[0-9]{2})?\\s*(balance)\\s*(open|close)?\\s*(\\(([^()]+)\\))?"),
     GROUP("group","(group)\\s+(create|add|remove|show)\\s*([A-Z]+)(.*)?"),
     PURCHASE("purchase", "([0-9]{4}\\.[0-9]{2}\\.[0-9]{2})?\\s*(purchase)\\s+([a-zA-Z]+)\\s+([a-zA-Z]+)\\s+([0-9.]+)\\s+\\(([^()]+)\\)"),
-    SECRET_SANTA("secretSanta","(secretSanta)"),
+    SECRET_SANTA("secretSanta","(secretSanta)\\s*([A-Z]+)"),
     CASHBACK("cashBack", "(cashBack)"),
     WRITEOFF("writeOff", "([0-9]{4}\\.[0-9]{2}\\.[0-9]{2})?\\s*(writeOff)");
 
@@ -46,7 +46,7 @@ public enum Command {
 
     public List<String> parse(String input) {
             Matcher matcher = Pattern.compile(getCommandPattern()).matcher(input);
-            List<String> list = new ArrayList<String>();
+            List<String> list = new ArrayList<>();
         if (matcher.matches()) {
             for (int i = 1; i <= matcher.groupCount(); i++) {
                 list.add(matcher.group(i));
