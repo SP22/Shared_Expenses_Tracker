@@ -1,9 +1,12 @@
 package splitter.command;
 
-import splitter.TransactionHistory;
-import splitter.UserHolder;
-import splitter.model.Transaction;
-import splitter.model.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import splitter.service.TransactionService;
+import splitter.service.UserService;
+import splitter.entity.Transaction;
+import splitter.entity.User;
 import splitter.util.DateUtil;
 import splitter.util.GroupMemberFilter;
 
@@ -14,25 +17,29 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+@Service
 public class PurchaseExecutor implements CommandExecutor {
 
-    private final TransactionHistory history = TransactionHistory.getInstance();
-    private final UserHolder users = UserHolder.getInstance();
+    @Autowired
+    private TransactionService transactionService;
+    @Autowired
+    private UserService userService;
+    @Autowired GroupMemberFilter groupMemberFilter;
 
     BigDecimal minimumAmount = new BigDecimal("0.01");
 
+    @Transactional
     @Override
     public void execute(List<String> params) {
         try {
             LocalDate date = DateUtil.parseDate(params.get(0));
 
-            User payer = users.addUser(params.get(2));
+            User payer = userService.getOrCreate(params.get(2));
             BigDecimal totalPrice = new BigDecimal(params.get(4));
             Set<User> borrowers = new TreeSet<>();
-            UserHolder userHolder = UserHolder.getInstance();
-            for (String s : GroupMemberFilter
+            for (String s : groupMemberFilter
                     .filter(params.get(5))) {
-                User user = userHolder.addUser(s);
+                User user = userService.getOrCreate(s);
                 borrowers.add(user);
             }
 
@@ -62,7 +69,7 @@ public class PurchaseExecutor implements CommandExecutor {
                 amount = amount.add(minimumAmount);
             }
             if (!payer.equals(b)) {
-                history.addTransaction(new Transaction(date, payer, b, amount));
+                transactionService.addTransaction(new Transaction(date, payer, b, amount));
             }
         }
     }

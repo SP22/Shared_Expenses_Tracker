@@ -1,17 +1,25 @@
 package splitter.command;
 
-import splitter.GroupHolder;
-import splitter.UserHolder;
-import splitter.model.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import splitter.entity.Group;
+import splitter.service.GroupService;
+import splitter.service.UserService;
+import splitter.entity.User;
 import splitter.util.GroupMemberFilter;
 
 import java.util.List;
-import java.util.Set;
 
+@Service
 public class GroupExecutor implements CommandExecutor {
-    private final GroupHolder groups = GroupHolder.getInstance();
-    private final UserHolder users = UserHolder.getInstance();
+    @Autowired
+    private GroupService groupService;
+    @Autowired
+    private UserService userService;
+    @Autowired GroupMemberFilter groupMemberFilter;
 
+    @Transactional
     @Override
     public void execute(List<String> params) {
         String command = params.get(1);
@@ -34,36 +42,37 @@ public class GroupExecutor implements CommandExecutor {
     }
 
     private void add(String groupName, String members) {
-        for (String userName : GroupMemberFilter.filter(members)) {
-            User user = users.addUser(userName);
-            groups.addUserToGroup(groupName, user);
+        for (String userName : groupMemberFilter.filter(members)) {
+            User user = userService.getOrCreate(userName);
+            groupService.addUser(groupName, user);
         }
     }
-
     private void show(String name) {
-        Set<User> group = groups.getGroup(name);
+        Group group = groupService.get(name);
         if (group == null) {
             System.out.println("Unknown group");
-        } else if (group.isEmpty()) {
+        } else if (group.getMembers().isEmpty()) {
             System.out.println("Group is empty");
         } else {
-            group.forEach(System.out::println);
+            group.getMembers().stream().sorted().forEach(System.out::println);
         }
-
     }
 
     private void create(String name, String members) {
-        groups.create(name);
-        for (String userName : GroupMemberFilter.filter(members)) {
-            User user = users.addUser(userName);
-            groups.addUserToGroup(name, user);
+        if (groupService.exists(name)) {
+            groupService.delete(name);
+        }
+        groupService.getOrCreate(name);
+        for (String userName : groupMemberFilter.filter(members)) {
+            User user = userService.getOrCreate(userName);
+            groupService.addUser(name, user);
         }
     }
 
     private void remove(String name, String members) {
-        for (String userName : GroupMemberFilter.filter(members)) {
-            User user = users.addUser(userName);
-            groups.removeUserFromGroup(name, user);
+        for (String userName : groupMemberFilter.filter(members)) {
+            User user = userService.getOrCreate(userName);
+            groupService.removeUser(name, user);
         }
     }
 }

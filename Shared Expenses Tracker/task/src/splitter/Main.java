@@ -1,16 +1,20 @@
 package splitter;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import splitter.command.TransactionExecutor;
+import splitter.service.CommandService;
 
 import java.util.Scanner;
 
 @SpringBootApplication
 public class Main implements CommandLineRunner {
-    private static final Logger LOG = LoggerFactory.getLogger(Main.class);
+
+    @Autowired
+    private CommandService commandService;
+
     public static void main(String[] args) {
         SpringApplication.run(Main.class, args);
     }
@@ -18,11 +22,11 @@ public class Main implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         Scanner scanner = new Scanner(System.in);
-        CommandProcessor processor = new CommandProcessor();
         String input = "";
+
         while (!"exit".equals(input)) {
             input = scanner.nextLine();
-            processor.execute(input);
+            commandService.execute(input);
         }
     }
 }

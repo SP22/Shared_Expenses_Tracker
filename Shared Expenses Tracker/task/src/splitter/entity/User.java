@@ -1,7 +1,20 @@
-package splitter.model;
+package splitter.entity;
 
+import javax.persistence.*;
+import java.util.Set;
+
+@Entity
+@Table(name = "users")
 public class User implements Comparable<User> {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
+    private Long id;
     private String name;
+
+    @ManyToMany(mappedBy = "members")
+    private Set<Group> groups;
+
     public User() {};
 
     public User(String name) {
@@ -14,6 +27,10 @@ public class User implements Comparable<User> {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Set<Group> getGroups() {
+        return groups;
     }
 
     @Override

@@ -1,8 +1,10 @@
 package splitter.command;
 
-import splitter.TransactionHistory;
-import splitter.model.Transaction;
-import splitter.model.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import splitter.service.TransactionService;
+import splitter.entity.Transaction;
+import splitter.entity.User;
 import splitter.util.DateUtil;
 
 import java.math.BigDecimal;
@@ -12,7 +14,10 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Service
 public class BalanceExecutor implements CommandExecutor {
+    @Autowired
+    private TransactionService transactionService;
     @Override
     public void execute(List<String> params) {
         boolean open = true;
@@ -21,7 +26,7 @@ public class BalanceExecutor implements CommandExecutor {
             open = false;
         }
         LocalDate until = open ? when.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()) : when;
-        List<Transaction> copy = TransactionHistory.getInstance().getHistory().stream()
+        List<Transaction> copy = transactionService.getHistory().stream()
                 .filter(x -> !x.when.isAfter(until))
                 .sorted()
                 .toList();
