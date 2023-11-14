@@ -15,7 +15,7 @@ public enum Command {
     GROUP("group","(group)\\s+(create|add|remove|show)\\s*([A-Z]+)(.*)?"),
     PURCHASE("purchase", "([0-9]{4}\\.[0-9]{2}\\.[0-9]{2})?\\s*(purchase)\\s+([a-zA-Z]+)\\s+([a-zA-Z]+)\\s+([0-9.]+)\\s+\\(([^()]+)\\)"),
     SECRET_SANTA("secretSanta","(secretSanta)\\s*([A-Z]+)"),
-    CASHBACK("cashBack", "(cashBack)"),
+    CASHBACK("cashBack", "([0-9]{4}\\.[0-9]{2}\\.[0-9]{2})?\\s*(cashBack)\\s+([a-zA-Z]+)\\s+([a-zA-Z]+)\\s+([0-9.]+)\\s+\\(([^()]+)\\)"),
     WRITEOFF("writeOff", "([0-9]{4}\\.[0-9]{2}\\.[0-9]{2})?\\s*(writeOff)");
 
     private final String name;

@@ -18,6 +18,7 @@ public class CommandService {
     @Autowired private BalanceExecutor balance;
     @Autowired private GroupExecutor group;
     @Autowired private SecretSantaExecutor secretSanta;
+    @Autowired private CashBackExecutor cashback;
 
     public void execute(String input) {
         Optional<Command> inputCommand = Command.of(input);
@@ -49,6 +50,7 @@ public class CommandService {
                         secretSanta.execute(params);
                     }
                     case CASHBACK -> {
+                        cashback.execute(params);
                     }
                     case WRITEOFF -> {
                         writeOff.execute(params);
