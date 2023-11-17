@@ -12,6 +12,7 @@ public enum Command {
     REPAY("repay", "([0-9]{4}\\.[0-9]{2}\\.[0-9]{2})?\\s*(repay)\\s+([a-zA-Z]+)\\s+([a-zA-Z]+)\\s+([0-9.]+)"),
     BORROW("borrow", "([0-9]{4}\\.[0-9]{2}\\.[0-9]{2})?\\s*(borrow)\\s+([a-zA-Z]+)\\s+([a-zA-Z]+)\\s+([0-9.]+)"),
     BALANCE("balance", "([0-9]{4}\\.[0-9]{2}\\.[0-9]{2})?\\s*(balance)\\s*(open|close)?\\s*(\\(([^()]+)\\))?"),
+    BALANCE_PERFECT("balancePerfect", "([0-9]{4}\\.[0-9]{2}\\.[0-9]{2})?\\s*(balancePerfect)\\s*(open|close)?\\s*(\\(([^()]+)\\))?"),
     GROUP("group","(group)\\s+(create|add|remove|show)\\s*([A-Z]+)(.*)?"),
     PURCHASE("purchase", "([0-9]{4}\\.[0-9]{2}\\.[0-9]{2})?\\s*(purchase)\\s+([a-zA-Z]+)\\s+([a-zA-Z]+)\\s+([0-9.]+)\\s+\\(([^()]+)\\)"),
     SECRET_SANTA("secretSanta","(secretSanta)\\s*([A-Z]+)"),

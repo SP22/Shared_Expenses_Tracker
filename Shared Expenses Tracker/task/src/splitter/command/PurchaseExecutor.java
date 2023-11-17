@@ -35,7 +35,7 @@ public class PurchaseExecutor implements CommandExecutor {
             LocalDate date = DateUtil.parseDate(params.get(0));
 
             User payer = userService.getOrCreate(params.get(2));
-            BigDecimal totalPrice = new BigDecimal(params.get(4));
+            BigDecimal totalPrice = new BigDecimal(params.get(4)).setScale(2, RoundingMode.HALF_UP);
             Set<User> borrowers = new TreeSet<>();
             for (String s : groupMemberFilter
                     .filter(params.get(5))) {
@@ -57,6 +57,13 @@ public class PurchaseExecutor implements CommandExecutor {
 
     private void processPurchase(LocalDate date, User payer, Set<User> borrowers, BigDecimal totalPrice) {
         boolean haveRemainder;
+        boolean positiveAmount = true;
+
+        if (totalPrice.compareTo(BigDecimal.ZERO) < 0) {
+            totalPrice = totalPrice.negate();
+            positiveAmount = false;
+        }
+
         BigDecimal quantity = new BigDecimal(borrowers.size());
         BigDecimal sharedAmount = totalPrice.divide(quantity, RoundingMode.FLOOR);
         haveRemainder = (0 != totalPrice.compareTo(sharedAmount.multiply(quantity)));
@@ -69,7 +76,11 @@ public class PurchaseExecutor implements CommandExecutor {
                 amount = amount.add(minimumAmount);
             }
             if (!payer.equals(b)) {
-                transactionService.addTransaction(new Transaction(date, payer, b, amount));
+                if (positiveAmount) {
+                    transactionService.addTransaction(new Transaction(date, payer, b, amount));
+                } else {
+                    transactionService.addTransaction(new Transaction(date, b, payer, amount));
+                }
             }
         }
     }

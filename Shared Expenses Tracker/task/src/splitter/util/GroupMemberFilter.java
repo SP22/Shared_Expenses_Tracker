@@ -22,8 +22,10 @@ public class GroupMemberFilter {
 
     public Set<String> filter(String members) {
         Set<String> filteredNames = new HashSet<>();
-        process(members, PLUS_PATTERN, filteredNames::addAll);
-        process(members, MINUS_PATTERN, filteredNames::removeAll);
+        if (members != null) {
+            process(members, PLUS_PATTERN, filteredNames::addAll);
+            process(members, MINUS_PATTERN, filteredNames::removeAll);
+        }
         return filteredNames;
     }
 
