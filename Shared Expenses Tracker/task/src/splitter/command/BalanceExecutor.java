@@ -25,9 +25,14 @@ public class BalanceExecutor implements CommandExecutor {
     @Transactional
     @Override
     public void execute(List<String> params) {
-        List<Transaction> output = getBalance(params);
+        List<Transaction> output = getBalance(getTransactions(params));
 
-        Set<String> filteredUsers = groupMemberFilter.filter(params.get(3));
+        Set<String> filteredUsers = null;
+        try {
+            filteredUsers = groupMemberFilter.filter(params.get(3));
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Group does not exist");
+        }
 
         output = output.stream().sorted().collect(Collectors.toList());
 //        if (output.isEmpty()) {
@@ -46,20 +51,22 @@ public class BalanceExecutor implements CommandExecutor {
 //        }
     }
 
-    public List<Transaction> getBalance(List<String> params) {
+    public List<Transaction> getTransactions(List<String> params) {
         boolean open = true;
         LocalDate when = DateUtil.parseDate(params.get(0));
         if ("close".equals(params.get(2))) {
             open = false;
         }
         LocalDate until = open ? when.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth()) : when;
-        List<Transaction> copy = transactionService.getHistory().stream()
+        return transactionService.getHistory().stream()
                 .filter(x -> !x.when.isAfter(until))
                 .sorted()
                 .toList();
+    }
 
+    public List<Transaction> getBalance(List<Transaction> input) {
         Map<User, Map<User, BigDecimal>> balance = new HashMap<>();
-        for (Transaction t : copy) {
+        for (Transaction t : input) {
             User from = t.from;
             User to = t.to;
             BigDecimal amount = t.amount;

@@ -23,6 +23,9 @@ public class GroupService {
     }
 
     public Group get(String name) {
+        if (!groupRepository.existsByName(name)) {
+            throw new IllegalArgumentException("Unknown group");
+        }
         return groupRepository.getByName(name);
     }
 

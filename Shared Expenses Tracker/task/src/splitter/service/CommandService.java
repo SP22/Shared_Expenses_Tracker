@@ -45,7 +45,7 @@ public class CommandService {
                     case WRITEOFF -> writeOff.execute(params);
                 }
             } catch (IllegalArgumentException e) {
-                System.out.println("Illegal command arguments");
+                System.out.println(e.getMessage());
             }
         }
 
